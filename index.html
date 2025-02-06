@@ -84,32 +84,35 @@
             var originalStyle = null;
 
             map.on('pointermove', function (event) {
-                var featureFound = false;
+                var newFeature = null;
+                var newLayer = null;
+                var newOriginalStyle = null;
 
                 map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-                    if (lastFeature !== feature) {
-                        // Restaurar la última feature si hay una nueva seleccionada
-                        if (lastFeature && lastLayer) {
-                            lastFeature.setStyle(originalStyle);
-                            lastLayer.getSource().changed();
-                        }
-                        // Guardar la nueva feature y su estilo original
-                        lastFeature = feature;
-                        lastLayer = layer;
-                        originalStyle = feature.getStyle();
-                        feature.setStyle(highlightStyle);
-                    }
-                    featureFound = true;
+                    newFeature = feature;
+                    newLayer = layer;
+                    newOriginalStyle = feature.getStyle();
                     return true; // Detener la iteración al encontrar una feature
                 });
 
-                // Si el cursor sale de todas las capas, restaurar la última feature resaltada
-                if (!featureFound && lastFeature && lastLayer) {
-                    lastFeature.setStyle(originalStyle);
-                    lastLayer.getSource().changed();
-                    lastFeature = null;
-                    lastLayer = null;
-                    originalStyle = null;
+                // Si el cursor se movió a una nueva feature
+                if (newFeature !== lastFeature) {
+                    // Restaurar el estilo de la última feature resaltada
+                    if (lastFeature && lastLayer) {
+                        lastFeature.setStyle(originalStyle);
+                        lastLayer.getSource().changed();
+                    }
+
+                    // Aplicar el nuevo estilo si hay una nueva feature
+                    if (newFeature) {
+                        originalStyle = newOriginalStyle;
+                        newFeature.setStyle(highlightStyle);
+                        newLayer.getSource().changed();
+                    }
+
+                    // Actualizar referencias
+                    lastFeature = newFeature;
+                    lastLayer = newLayer;
                 }
             });
         </script>
