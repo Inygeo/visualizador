@@ -79,28 +79,37 @@
                 })
             });
 
-            var selectedFeature = null;
-            var selectedLayer = null;
+            var lastFeature = null;
+            var lastLayer = null;
+            var originalStyle = null;
 
             map.on('pointermove', function (event) {
+                var featureFound = false;
+
                 map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-                    if (selectedFeature !== feature) {
-                        if (selectedFeature && selectedLayer) {
-                            selectedLayer.getSource().changed();
+                    if (lastFeature !== feature) {
+                        // Restaurar la última feature si hay una nueva seleccionada
+                        if (lastFeature && lastLayer) {
+                            lastFeature.setStyle(originalStyle);
+                            lastLayer.getSource().changed();
                         }
-                        selectedFeature = feature;
-                        selectedLayer = layer;
+                        // Guardar la nueva feature y su estilo original
+                        lastFeature = feature;
+                        lastLayer = layer;
+                        originalStyle = feature.getStyle();
                         feature.setStyle(highlightStyle);
                     }
-                    return true;
-                }, { hitTolerance: 5 });
+                    featureFound = true;
+                    return true; // Detener la iteración al encontrar una feature
+                });
 
-                if (!map.hasFeatureAtPixel(event.pixel)) {
-                    if (selectedFeature && selectedLayer) {
-                        selectedLayer.getSource().changed();
-                    }
-                    selectedFeature = null;
-                    selectedLayer = null;
+                // Si el cursor sale de todas las capas, restaurar la última feature resaltada
+                if (!featureFound && lastFeature && lastLayer) {
+                    lastFeature.setStyle(originalStyle);
+                    lastLayer.getSource().changed();
+                    lastFeature = null;
+                    lastLayer = null;
+                    originalStyle = null;
                 }
             });
         </script>
