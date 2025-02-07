@@ -173,18 +173,23 @@
             if (clave) {
                 var found = false;
                 
-                // Buscar en la capa MALLA_TIJUANA_CARTAS1K_1
-                layers[0].getSource().forEachFeature(function (feature) {
-                    if (feature.get('CLAVE1K') === clave) {
-                        found = true;
-                        // Resaltar el elemento
-                        feature.setStyle(highlightStyle);
-                        
-                        // Hacer zoom sobre el elemento
-                        var extent = feature.getGeometry().getExtent();
-                        map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 500 });
-                    }
-                });
+                // Asegurarse de que la capa esté cargada
+                var layer = layers[0]; // Asegurarse de que la capa correcta esté seleccionada (MALLA_TIJUANA_CARTAS1K_1)
+                
+                // Verificar si la capa tiene características
+                if (layer && layer.getSource()) {
+                    layer.getSource().forEachFeature(function (feature) {
+                        if (feature.get('CLAVE1K') && feature.get('CLAVE1K').toString() === clave) {
+                            found = true;
+                            // Resaltar el elemento
+                            feature.setStyle(highlightStyle);
+                            
+                            // Hacer zoom sobre el elemento
+                            var extent = feature.getGeometry().getExtent();
+                            map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 500 });
+                        }
+                    });
+                }
 
                 if (!found) {
                     alert('Elemento con esa CLAVE1K no encontrado.');
@@ -196,4 +201,3 @@
         </script>
     </body>
 </html>
-
