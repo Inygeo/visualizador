@@ -96,16 +96,16 @@
 
         var selectedFeature = null;
 
-        // Crear el mapa
+        // Crear el mapa con Google Maps como fondo
         var map = new ol.Map({
             target: 'map',
             layers: [
                 new ol.layer.Tile({
-                    source: new ol.source.OSM()
+                    source: new ol.source.OSM() // Para mostrar un mapa base de OpenStreetMap
                 })
             ],
             view: new ol.View({
-                center: [0, 0],
+                center: [0, 0], // Centrado en coordenadas 0,0 (latitud, longitud)
                 zoom: 2
             })
         });
@@ -136,9 +136,10 @@
                 selectedFeature = null;
             }
 
-            // Mostrar coordenadas en la parte inferior del mapa
+            // Obtener las coordenadas en EPSG:4326 (Lat/Lon)
             var coordinate = event.coordinate;
-            var coordText = 'Coordenadas: ' + coordinate[0].toFixed(2) + ', ' + coordinate[1].toFixed(2);
+            var latLon = ol.proj.toLonLat(coordinate); // Convertir a latitud/longitud
+            var coordText = 'Coordenadas: ' + latLon[1].toFixed(6) + ', ' + latLon[0].toFixed(6); // Mostrar lat y lon
             document.getElementById('coordinates').textContent = coordText;
         });
 
