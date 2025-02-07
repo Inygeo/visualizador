@@ -55,6 +55,17 @@
             font-size: 14px;
             width: 250px;
         }
+        #search-box input {
+            width: 70%;
+            padding: 5px;
+            font-size: 14px;
+        }
+        #search-box button {
+            width: 25%;
+            padding: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
         </style>
 
         <style>
@@ -78,9 +89,10 @@
         <!-- Div para mostrar las coordenadas -->
         <div id="coordinates">Coordenadas: -</div>
 
-        <!-- Barra de búsqueda -->
+        <!-- Barra de búsqueda con botón -->
         <div id="search-box">
             <input type="text" id="search-input" placeholder="Buscar por CLAVE1K..." />
+            <button id="search-btn">Buscar</button>
         </div>
 
         <script src="resources/qgis2web_expressions.js"></script>
@@ -155,30 +167,30 @@
         });
 
         // Función para buscar por CLAVE1K
-        document.getElementById('search-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                var clave = e.target.value.trim(); // Obtener el valor del input
+        document.getElementById('search-btn').addEventListener('click', function () {
+            var clave = document.getElementById('search-input').value.trim(); // Obtener el valor del input
 
-                if (clave) {
-                    var found = false;
-                    
-                    // Buscar en la capa MALLA_TIJUANA_CARTAS1K_1
-                    layers[0].getSource().forEachFeature(function (feature) {
-                        if (feature.get('CLAVE1K') === clave) {
-                            found = true;
-                            // Resaltar el elemento
-                            feature.setStyle(highlightStyle);
-                            
-                            // Hacer zoom sobre el elemento
-                            var extent = feature.getGeometry().getExtent();
-                            map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 500 });
-                        }
-                    });
-
-                    if (!found) {
-                        alert('Elemento no encontrado');
+            if (clave) {
+                var found = false;
+                
+                // Buscar en la capa MALLA_TIJUANA_CARTAS1K_1
+                layers[0].getSource().forEachFeature(function (feature) {
+                    if (feature.get('CLAVE1K') === clave) {
+                        found = true;
+                        // Resaltar el elemento
+                        feature.setStyle(highlightStyle);
+                        
+                        // Hacer zoom sobre el elemento
+                        var extent = feature.getGeometry().getExtent();
+                        map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 500 });
                     }
+                });
+
+                if (!found) {
+                    alert('Elemento con esa CLAVE1K no encontrado.');
                 }
+            } else {
+                alert('Por favor, ingresa una CLAVE1K.');
             }
         });
         </script>
