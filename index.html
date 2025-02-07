@@ -32,6 +32,20 @@
             background-color: rgba(255,255,255,.4) !important;
             padding: 2px !important;
         } 
+
+        /* Estilo para mostrar las coordenadas */
+        #coordinates {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
         </style>
 
         <style>
@@ -51,6 +65,8 @@
                 <div id="popup-content"></div>
             </div>
         </div>
+        <div id="coordinates">Coordenadas: - , -</div> <!-- Contenedor de coordenadas -->
+
         <script src="resources/qgis2web_expressions.js"></script>
         <script src="./resources/functions.js"></script>
         <script src="./resources/ol.js"></script>
@@ -106,6 +122,11 @@
                 selectedFeature.setStyle(null);
                 selectedFeature = null;
             }
+
+            // Mostrar coordenadas en la parte inferior del mapa
+            var coordinate = event.coordinate;
+            var coordText = 'Coordenadas: ' + coordinate[0].toFixed(2) + ', ' + coordinate[1].toFixed(2);
+            document.getElementById('coordinates').textContent = coordText;
         });
 
         // Evento para limpiar cuando el cursor sale del mapa
@@ -114,6 +135,7 @@
                 selectedFeature.setStyle(null);
                 selectedFeature = null;
             }
+            document.getElementById('coordinates').textContent = 'Coordenadas: - , -';
         });
         </script>
     </body>
