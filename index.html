@@ -32,6 +32,26 @@
             background-color: rgba(255,255,255,.4) !important;
             padding: 2px !important;
         } 
+        #coordinates {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        #search-container {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 14px;
+            z-index: 10;
+        }
         </style>
 
         <style>
@@ -42,7 +62,7 @@
             margin: 0;
         }
         </style>
-        <title></title>
+        <title>Map with Coordinates and Search</title>
     </head>
     <body>
         <div id="map">
@@ -50,7 +70,16 @@
                 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
                 <div id="popup-content"></div>
             </div>
+            <!-- Coordenadas del cursor -->
+            <div id="coordinates">Coordenadas: </div>
+
+            <!-- Barra de búsqueda -->
+            <div id="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar por clave..." />
+                <button id="searchBtn">Buscar</button>
+            </div>
         </div>
+
         <script src="resources/qgis2web_expressions.js"></script>
         <script src="./resources/functions.js"></script>
         <script src="./resources/ol.js"></script>
@@ -106,6 +135,10 @@
                 selectedFeature.setStyle(null);
                 selectedFeature = null;
             }
+
+            // Actualizar coordenadas en tiempo real
+            var coords = ol.proj.toLonLat(event.coordinate);
+            document.getElementById("coordinates").innerText = "Coordenadas: " + coords[0].toFixed(6) + ", " + coords[1].toFixed(6);
         });
 
         // Evento para limpiar cuando el cursor sale del mapa
@@ -115,6 +148,31 @@
                 selectedFeature = null;
             }
         });
+
+        // Funcionalidad de búsqueda
+        document.getElementById("searchBtn").addEventListener("click", function() {
+            var searchText = document.getElementById("searchInput").value.trim();
+            if (searchText) {
+                var layer = map.getLayers().getArray().find(l => l.get('title') === 'Malla'); // Cambiar 'Malla' por el nombre correcto de tu capa
+                if (layer) {
+                    var source = layer.getSource();
+                    var features = source.getFeatures();
+                    var foundFeature = features.find(f => f.get('CLAVE1K') === searchText); // Usamos 'CLAVE1K' en lugar de 'clave'
+
+                    if (foundFeature) {
+                        map.getView().animate({
+                            center: foundFeature.getGeometry().getCoordinates(),
+                            zoom: 15
+                        });
+                        selectedFeature = foundFeature;
+                        selectedFeature.setStyle(highlightStyle);
+                    } else {
+                        alert('No se encontró ninguna malla con esa clave');
+                    }
+                }
+            }
+        });
         </script>
     </body>
 </html>
+
