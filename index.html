@@ -160,10 +160,16 @@
                     var foundFeature = features.find(f => f.get('CLAVE1K') === searchText); // Usamos 'CLAVE1K' en lugar de 'clave'
 
                     if (foundFeature) {
+                        // Realizar el zoom y centrar el mapa sobre el feature
                         map.getView().animate({
                             center: foundFeature.getGeometry().getCoordinates(),
                             zoom: 15
                         });
+
+                        // Resaltar el feature
+                        if (selectedFeature) {
+                            selectedFeature.setStyle(null); // Eliminar resaltado del anterior
+                        }
                         selectedFeature = foundFeature;
                         selectedFeature.setStyle(highlightStyle);
                     } else {
