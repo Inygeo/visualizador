@@ -32,7 +32,6 @@
             background-color: rgba(255,255,255,.4) !important;
             padding: 2px !important;
         } 
-        /* Añadido para mostrar las coordenadas */
         #coordinates {
             position: absolute;
             bottom: 40px;
@@ -43,7 +42,6 @@
             font-family: Arial, sans-serif;
             font-size: 14px;
         }
-        /* Barra de búsqueda */
         #search-box {
             position: absolute;
             top: 10px;
@@ -86,7 +84,6 @@
             </div>
         </div>
 
-        <!-- Div para mostrar las coordenadas -->
         <div id="coordinates">Coordenadas: -</div>
 
         <!-- Barra de búsqueda con botón -->
@@ -112,7 +109,6 @@
         <script src="./resources/qgis2web.js"></script>
 
         <script>
-        // Estilo de resaltado
         var highlightStyle = new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: 'yellow', // Color del borde resaltado
@@ -128,7 +124,6 @@
         // Evento para detectar movimiento del cursor sobre el mapa
         map.on('pointermove', function (event) {
             let featureFound = false;
-            
             map.getTargetElement().style.cursor = '';
 
             map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
@@ -145,20 +140,17 @@
                 }
             });
 
-            // Si no se encontró ningún feature, quitar el resaltado del anterior
             if (!featureFound && selectedFeature) {
                 selectedFeature.setStyle(null);
                 selectedFeature = null;
             }
 
-            // Obtener las coordenadas del cursor y mostrar
             var coordinate = event.coordinate;
-            var transformedCoord = ol.proj.toLonLat(coordinate); // Transformar a longitud/latitud
+            var transformedCoord = ol.proj.toLonLat(coordinate);
             var coordsString = 'Lon: ' + transformedCoord[0].toFixed(6) + ' | Lat: ' + transformedCoord[1].toFixed(6);
             document.getElementById('coordinates').innerHTML = 'Coordenadas: ' + coordsString;
         });
 
-        // Evento para limpiar cuando el cursor sale del mapa
         map.getViewport().addEventListener('mouseleave', function () {
             if (selectedFeature) {
                 selectedFeature.setStyle(null);
@@ -168,25 +160,19 @@
 
         // Función para buscar por CLAVE1K
         document.getElementById('search-btn').addEventListener('click', function () {
-            var clave = document.getElementById('search-input').value.trim(); // Obtener el valor del input
-
+            var clave = document.getElementById('search-input').value.trim();
             if (clave) {
                 var found = false;
-                
-                // Asegurarse de que la capa esté cargada
-                var layer = layers[0]; // Asegurarse de que la capa correcta esté seleccionada (MALLA_TIJUANA_CARTAS1K_1)
-                
-                // Verificar si la capa tiene características
+                // Asegúrate de que la capa sea la correcta
+                var layer = layers[0]; // Asegúrate de que la capa correcta esté seleccionada
+
                 if (layer && layer.getSource()) {
                     layer.getSource().forEachFeature(function (feature) {
                         if (feature.get('CLAVE1K') && feature.get('CLAVE1K').toString() === clave) {
                             found = true;
-                            // Resaltar el elemento
-                            feature.setStyle(highlightStyle);
-                            
-                            // Hacer zoom sobre el elemento
+                            feature.setStyle(highlightStyle); // Resaltar la característica
                             var extent = feature.getGeometry().getExtent();
-                            map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 500 });
+                            map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 500 }); // Zoom en la característica
                         }
                     });
                 }
@@ -201,3 +187,4 @@
         </script>
     </body>
 </html>
+
