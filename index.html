@@ -153,7 +153,7 @@
         document.getElementById("searchBtn").addEventListener("click", function() {
             var searchText = document.getElementById("searchInput").value.trim();
             if (searchText) {
-                var layer = map.getLayers().getArray().find(l => l.get('title') === 'MALLA_TIJUANA_CARTAS1K_1'); // Cambiar 'Malla' por el nombre correcto de tu capa
+                var layer = map.getLayers().getArray().find(l => l.get('title') === 'MALLA_TIJUANA_CARTAS1K_1.js'); // Cambiar 'Malla' por el nombre correcto de tu capa
                 if (layer) {
                     var source = layer.getSource();
                     var features = source.getFeatures();
