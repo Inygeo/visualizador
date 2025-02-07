@@ -81,24 +81,39 @@
 
         var selectedFeature = null;
 
-        // Detectar movimiento del cursor sobre el mapa
+        // Evento para detectar movimiento del cursor sobre el mapa
         map.on('pointermove', function (event) {
-            map.getTargetElement().style.cursor = ''; // Restablecer cursor por defecto
+            let featureFound = false;
+            
+            map.getTargetElement().style.cursor = '';
 
-            // Restaurar el estilo del elemento previamente seleccionado
+            map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
+                if (layer) {
+                    featureFound = true;
+                    if (selectedFeature !== feature) {
+                        if (selectedFeature) {
+                            selectedFeature.setStyle(null); // Restaurar estilo del anterior
+                        }
+                        selectedFeature = feature;
+                        selectedFeature.setStyle(highlightStyle);
+                        map.getTargetElement().style.cursor = 'pointer';
+                    }
+                }
+            });
+
+            // Si no se encontró ningún feature, quitar el resaltado del anterior
+            if (!featureFound && selectedFeature) {
+                selectedFeature.setStyle(null);
+                selectedFeature = null;
+            }
+        });
+
+        // Evento para limpiar cuando el cursor sale del mapa
+        map.getViewport().addEventListener('mouseleave', function () {
             if (selectedFeature) {
                 selectedFeature.setStyle(null);
                 selectedFeature = null;
             }
-
-            // Obtener el primer elemento bajo el cursor
-            map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-                if (layer) { 
-                    selectedFeature = feature;
-                    selectedFeature.setStyle(highlightStyle); // Aplicar resaltado
-                    map.getTargetElement().style.cursor = 'pointer';
-                }
-            });
         });
         </script>
     </body>
