@@ -32,16 +32,37 @@
             background-color: rgba(255,255,255,.4) !important;
             padding: 2px !important;
         } 
-        /* Añadido para mostrar las coordenadas */
         #coordinates {
             position: absolute;
-            bottom: 10px;
+            bottom: 40px;
             left: 10px;
             background-color: rgba(255, 255, 255, 0.7);
             padding: 5px;
             border-radius: 5px;
             font-family: Arial, sans-serif;
             font-size: 14px;
+        }
+        #search-box {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            width: 250px;
+        }
+        #search-box input {
+            width: 70%;
+            padding: 5px;
+            font-size: 14px;
+        }
+        #search-box button {
+            width: 25%;
+            padding: 5px;
+            font-size: 14px;
+            cursor: pointer;
         }
         </style>
 
@@ -63,8 +84,13 @@
             </div>
         </div>
 
-        <!-- Div para mostrar las coordenadas -->
         <div id="coordinates">Coordenadas: -</div>
+
+        <!-- Barra de búsqueda con botón -->
+        <div id="search-box">
+            <input type="text" id="search-input" placeholder="Buscar por CLAVE1K..." />
+            <button id="search-btn">Buscar</button>
+        </div>
 
         <script src="resources/qgis2web_expressions.js"></script>
         <script src="./resources/functions.js"></script>
@@ -83,7 +109,6 @@
         <script src="./resources/qgis2web.js"></script>
 
         <script>
-        // Estilo de resaltado
         var highlightStyle = new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: 'yellow', // Color del borde resaltado
@@ -99,7 +124,6 @@
         // Evento para detectar movimiento del cursor sobre el mapa
         map.on('pointermove', function (event) {
             let featureFound = false;
-            
             map.getTargetElement().style.cursor = '';
 
             map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
@@ -116,24 +140,48 @@
                 }
             });
 
-            // Si no se encontró ningún feature, quitar el resaltado del anterior
             if (!featureFound && selectedFeature) {
                 selectedFeature.setStyle(null);
                 selectedFeature = null;
             }
 
-            // Obtener las coordenadas del cursor y mostrar
             var coordinate = event.coordinate;
-            var transformedCoord = ol.proj.toLonLat(coordinate); // Transformar a longitud/latitud
+            var transformedCoord = ol.proj.toLonLat(coordinate);
             var coordsString = 'Lon: ' + transformedCoord[0].toFixed(6) + ' | Lat: ' + transformedCoord[1].toFixed(6);
             document.getElementById('coordinates').innerHTML = 'Coordenadas: ' + coordsString;
         });
 
-        // Evento para limpiar cuando el cursor sale del mapa
         map.getViewport().addEventListener('mouseleave', function () {
             if (selectedFeature) {
                 selectedFeature.setStyle(null);
                 selectedFeature = null;
+            }
+        });
+
+        // Función para buscar por CLAVE1K
+        document.getElementById('search-btn').addEventListener('click', function () {
+            var clave = document.getElementById('search-input').value.trim();
+            if (clave) {
+                var found = false;
+                // Asegúrate de que la capa sea la correcta
+                var layer = layers[0]; // Asegúrate de que la capa correcta esté seleccionada
+
+                if (layer && layer.getSource()) {
+                    layer.getSource().getFeatures().forEach(function (feature) {
+                        if (feature.get('CLAVE1K') && feature.get('CLAVE1K').toString() === clave) {
+                            found = true;
+                            feature.setStyle(highlightStyle); // Resaltar la característica
+                            var extent = feature.getGeometry().getExtent();
+                            map.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 500 }); // Zoom en la característica
+                        }
+                    });
+                }
+
+                if (!found) {
+                    alert('Elemento con esa CLAVE1K no encontrado.');
+                }
+            } else {
+                alert('Por favor, ingresa una CLAVE1K.');
             }
         });
         </script>
