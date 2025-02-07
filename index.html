@@ -45,41 +45,61 @@
         <title></title>
     </head>
     <body>
-        <div id="map"></div>
+        <div id="map">
+            <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                <div id="popup-content"></div>
+            </div>
+        </div>
         <script src="resources/qgis2web_expressions.js"></script>
         <script src="./resources/functions.js"></script>
         <script src="./resources/ol.js"></script>
         <script src="./resources/ol-layerswitcher.js"></script>
         <script src="layers/MALLA_TIJUANA_CARTAS1K_1.js"></script>
+        <script src="layers/PROCESADAS_2.js"></script>
+        <script src="layers/VOLADAS_3.js"></script>
+        <script src="layers/ENTREGADAS_4.js"></script>
         <script src="styles/MALLA_TIJUANA_CARTAS1K_1_style.js"></script>
-        <script src="./layers/layers.js"></script> 
+        <script src="styles/PROCESADAS_2_style.js"></script>
+        <script src="styles/VOLADAS_3_style.js"></script>
+        <script src="styles/ENTREGADAS_4_style.js"></script>
+        <script src="./layers/layers.js" type="text/javascript"></script> 
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script>
 
         <script>
-            var highlightStyle = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: 'yellow',
-                    width: 3
-                })
-            });
+        // Estilo de resaltado
+        var highlightStyle = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'yellow', // Color del borde resaltado
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 0, 0.3)' // Color de relleno semi-transparente
+            })
+        });
 
-            var mallaLayer = layersList.find(layer => layer.get('title') === 'MALLA_TIJUANA_CARTAS1K_1');
-            var highlightFeature = null;
+        var selectedFeature = null;
 
-            map.on('pointermove', function (event) {
-                if (highlightFeature) {
-                    highlightFeature.setStyle(null);
-                    highlightFeature = null;
+        // Detectar movimiento del cursor sobre el mapa
+        map.on('pointermove', function (event) {
+            map.getTargetElement().style.cursor = ''; // Restablecer cursor por defecto
+
+            // Restaurar el estilo del elemento previamente seleccionado
+            if (selectedFeature) {
+                selectedFeature.setStyle(null);
+                selectedFeature = null;
+            }
+
+            // Obtener el primer elemento bajo el cursor
+            map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
+                if (layer) { 
+                    selectedFeature = feature;
+                    selectedFeature.setStyle(highlightStyle); // Aplicar resaltado
+                    map.getTargetElement().style.cursor = 'pointer';
                 }
-                map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-                    if (layer === mallaLayer) {
-                        highlightFeature = feature;
-                        feature.setStyle(highlightStyle);
-                        return true; 
-                    }
-                });
             });
+        });
         </script>
     </body>
 </html>
