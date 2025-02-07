@@ -13,6 +13,9 @@
         <style>
         html, body {
             background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            height: 100%;
         }
         .ol-control > * {
             background-color: #f8f8f8!important;
@@ -45,6 +48,7 @@
             font-family: Arial, sans-serif;
             border-radius: 5px;
             border: 1px solid #ccc;
+            z-index: 1000;
         }
         </style>
 
@@ -56,15 +60,10 @@
             margin: 0;
         }
         </style>
-        <title></title>
+        <title>Mapa con Coordenadas</title>
     </head>
     <body>
-        <div id="map">
-            <div id="popup" class="ol-popup">
-                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-                <div id="popup-content"></div>
-            </div>
-        </div>
+        <div id="map"></div>
         <div id="coordinates">Coordenadas: - , -</div> <!-- Contenedor de coordenadas -->
 
         <script src="resources/qgis2web_expressions.js"></script>
@@ -87,7 +86,7 @@
         // Estilo de resaltado
         var highlightStyle = new ol.style.Style({
             stroke: new ol.style.Stroke({
-                color: 'yellow', // Color del borde resaltado
+                color: 'yellow',
                 width: 3
             }),
             fill: new ol.style.Fill({
@@ -97,10 +96,24 @@
 
         var selectedFeature = null;
 
+        // Crear el mapa
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                center: [0, 0],
+                zoom: 2
+            })
+        });
+
         // Evento para detectar movimiento del cursor sobre el mapa
         map.on('pointermove', function (event) {
             let featureFound = false;
-            
+
             map.getTargetElement().style.cursor = '';
 
             map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
